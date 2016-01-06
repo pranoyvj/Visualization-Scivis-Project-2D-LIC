@@ -1,0 +1,114 @@
+package LICpack;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.util.Random;
+
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+
+
+	
+class MyCanvas2 extends JComponent 
+{
+	public static final int Dimension=512;
+	int Initialx = 150;
+	int Initialy = 100;
+	private BufferedImage Canvas2 ;
+	public float[][] magnitude=new float[Dimension][Dimension];
+	public double[][] xvec=new double[Dimension][Dimension]; //vx part of vector field
+	public double[][] yvec=new double[Dimension][Dimension]; //vy part of vector field
+	public double scaleX = 2.5;
+	public double scaleY = 1000;
+	public int scaleVF1 = 85;
+	public int scaleVF2 = 63;
+	public int scaleVF3 = 20;
+	public int scaleVF4 = 50;
+	public int scaleVF5 = 1;
+	
+	public MyCanvas2(){
+		Canvas2 = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
+		fillCanvas(Color.LIGHT_GRAY);
+		InitializeVecField (Initialx, Initialy, 512, 512); 
+		
+		
+	}	
+	
+	 public void fillCanvas(Color c) {
+	        int color = c.getRGB();
+	        for (int x = 0; x < Canvas2.getWidth(); x++) {
+	            for (int y = 0; y < Canvas2.getHeight(); y++) {
+	            	Canvas2.setRGB(x, y, color);
+	            }
+	        }
+	        repaint();
+	    }
+	 
+	 public static double mapRange(double a1, double a2, double b1, double b2, double s){ //maps (a1,a2) to the range of(b1,b2)
+			return b1 + ((s - a1)*(b2 - b1))/(a2 - a1);
+		}
+
+	public void InitializeVecField( int x1, int y1, int width, int height) {
+    	//vec field f(x,y)=  x*sin(x*pi/2)+ 2y			
+				
+		// Implement vec data for each pixel
+        for (int x = Initialx ; x < Initialx + Dimension; x++) {
+            for (int y = Initialy; y < Initialy + Dimension; y++) {
+            	// xvec,yvec[][] range from 0 to 511
+            	
+            	double mapX=mapRange(150,661,-4,4,x);
+            	double mapY=mapRange(100,611,-1,1,y);
+            	double mapX5=mapRange(150,661,-10,10,x);
+            	double mapY5=mapRange(100,611,-10,10,y);
+            	           
+            	//xvec[x-Initialx][y-Initialy] = mapX*Math.sin(mapX*Math.PI/2); //vecField 1
+            	//xvec[x-Initialx][y-Initialy] = mapX*Math.cos(mapX*Math.PI/2); //vecField 2
+            	//xvec[x-Initialx][y-Initialy] = 3*mapX; //vecField 3 
+            	//xvec[x-Initialx][y-Initialy] = -3; //vecField 4 constant scalar vector field (3,4)
+            	xvec[x-Initialx][y-Initialy] = 4*mapX5*mapX5; //vecField 5
+            	
+            	//yvec[x-Initialx][y-Initialy] = 2*mapY; //vecField 1,2
+            	//yvec[x-Initialx][y-Initialy] = 2*mapY*Math.cos(mapY*Math.PI/2); //vecField 3
+            	//yvec[x-Initialx][y-Initialy] = -4; //vecField 4
+            	yvec[x-Initialx][y-Initialy] = 4*mapY5*mapY5; //vecField 5
+            	
+            	// magnitude for each pixel
+            	magnitude[x-Initialx][y-Initialy]= (float) Math.sqrt(xvec[x-Initialx][y-Initialy]*xvec[x-Initialx][y-Initialy]+yvec[x-Initialx][y-Initialy]*yvec[x-Initialx][y-Initialy]);
+            	//velocity field magnitude encoded as color!!!
+
+            	//Color mycolor = new Color((int) magnitude[x-Initialx][y-Initialy]*scaleVF1, 0 , 0); //vecField 1
+            	//Color mycolor = new Color((int) magnitude[x-Initialx][y-Initialy]*scaleVF2, 0 , 0); //vecField 2
+            	//Color mycolor = new Color(((int) magnitude[x-Initialx][y-Initialy]*scaleVF3), 0 , 0); //vecField 3
+            	//Color mycolor = new Color((int) magnitude[x-Initialx][y-Initialy]*scaleVF4, (int) magnitude[x-Initialx][y-Initialy]*scaleVF4 , 0); //vecField 4
+            	Color mycolor = new Color(0, 0 , ((int) magnitude[x-Initialx][y-Initialy]/scaleVF5)); //vecField 5
+                Canvas2.setRGB(x, y, mycolor.getRGB());
+            }
+        }
+        repaint();
+    }
+	 
+	public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setFont(new Font("Arial", Font.BOLD, 12));
+ 	    String msg = "Vector Field data : ";
+ 	    int msgX = 10;
+ 	    int msgY = 20; 	     
+        g2d.drawImage(Canvas2, null, null);
+        g2d.drawString(msg, msgX, msgY);
+    }
+}
+
+public  class vecField {
+  public static void main(String[] args) {
+    JFrame window = new JFrame("Vector Field data ");
+    window.toString();
+    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    window.setBounds(30, 30, 800, 700);
+    window.getContentPane().add(new MyCanvas2());
+    window.setVisible(true);
+  }
+}
