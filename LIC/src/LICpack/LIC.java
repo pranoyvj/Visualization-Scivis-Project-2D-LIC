@@ -20,6 +20,9 @@ class MyCanvas3 extends JComponent
 	public boolean Outofrange;
 	float[][] local_weight_Forward = new float[Dimension][Dimension];
 	float[][] local_weight_Backward = new float[Dimension][Dimension];
+	float[][] normalization_Forward = new float[Dimension][Dimension];
+	float[][] normalization_Backward = new float[Dimension][Dimension];
+	int ColorParam = 255;
 	MyCanvas obj = new MyCanvas();
 	MyCanvas2 obj2 = new MyCanvas2();
 		
@@ -87,7 +90,8 @@ class MyCanvas3 extends JComponent
             		}// for loop ends
             	
             	local_weight_Forward[x][y] = for_weight; //accumulate the weights here!! 
-            	local_weight_Forward[x][y] /= sumFor_local_weight;  //normalization
+            	//local_weight_Forward[x][y] /= sumFor_local_weight;  //normalization
+            	normalization_Forward[x][y] = sumFor_local_weight;
             	//local_weight /= actual_iter;  //normalization
 
            	           	
@@ -143,14 +147,16 @@ class MyCanvas3 extends JComponent
             		}// for loop ends
             	
             	local_weight_Backward[x][y]  = back_weight; //accumulate the weights here!! 
-            	local_weight_Backward[x][y]  /= sumFor_local_weight;  //normalization
+            	//local_weight_Backward[x][y]  /= sumFor_local_weight;  //normalization
+            	normalization_Backward[x][y] = sumFor_local_weight;
             	//local_weight_Backward[x][y] /= actual_iter;  //normalization           	           	            	
             }
         }//double for loop x,y ends
         //store the value in the o/p pixel
         for (int x = 0 ; x <  Dimension; x++) {
             for (int y = 0; y <  Dimension; y++) {
-            	Color mycolor3 = new Color(((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/2, ((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/2, ((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/2);
+            	Color mycolor3 = new Color(((((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/(normalization_Forward[x][y]+normalization_Backward[x][y]))/ColorParam), ((((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/(normalization_Forward[x][y]+normalization_Backward[x][y]))/ColorParam), ((((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/(normalization_Forward[x][y]+normalization_Backward[x][y]))/ColorParam));
+            	//Color mycolor4 = new Color(((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/2, ((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/2, ((int) local_weight_Backward[x][y]  +(int) local_weight_Forward[x][y] )/2);
             	Canvas3.setRGB(x+Initialx, y+Initialy, mycolor3.getRGB());
             }
         }
